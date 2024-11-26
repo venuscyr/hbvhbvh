@@ -1,0 +1,75 @@
+import { Context } from 'koa';
+import { Strapi } from '@strapi/strapi';
+
+export default {
+  // Récupère les produits d'un vendeur spécifique
+  async findMySellers(ctx: Context) {
+    const user = ctx.state.user; // Utilisateur connecté
+
+    // Vérifie si l'utilisateur est un vendeur
+    if (!user || user.role.name !== 'Seller') {
+      return ctx.unauthorized('Vous n\'êtes pas autorisé à accéder à ces produits.');
+    }
+
+    // Récupère les produits associés au vendeur
+    const products = await strapi.entityService.findMany('api::product.product', {
+      filters: { seller: user.id },
+    });
+    ctx.send(products);
+  },
+
+  // Crée un nouveau produit
+  async create(ctx: Context) {
+    const user = ctx.state.user; // Utilisateur connecté
+    const data = ctx.request.body; // Données envoyées dans la requête
+
+    // Vérifie si l'utilisateur est un vendeur
+    if (!user || user.role.name !== 'Seller') {
+      return ctx.unauthorized('Vous n\'êtes pas autorisé à créer un produit.');
+    }
+
+    // Associe le produit au vendeur et enregistre-le
+    const newProduct = await strapi.entityService.create('api::product.product', {
+      data: {
+        ...data,
+        seller: user.id,
+      },
+    });
+    ctx.send(newProduct);
+  },
+
+  // Supprime un produit existant
+  async delete(ctx: Context) {
+    const { id } = ctx.params; // Récupère l'ID du produit
+    const user = ctx.state.user; // Utilisateur connecté
+
+    // Vérifie si le produit existe et appartient au vendeur connecté
+    const product = await strapi.entityService.findOne('api::product.product', id, { populate: ['seller'] });
+    if (!product || product.seller.id !== user.id) {
+      return ctx.unauthorized('Vous n\'êtes pas autorisé à supprimer ce produit.');
+    }
+
+    // Supprime le produit
+    await strapi.entityService.delete('api::product.product', id);
+    ctx.send({ message: 'Produit supprimé avec succès.' });
+  },
+
+  // Met à jour un produit existant
+  async update(ctx: Context) {
+    const { id } = ctx.params; // Récupère l'ID du produit
+    const user = ctx.state.user; // Utilisateur connecté
+    const data = ctx.request.body; // Données à mettre à jour
+
+    // Vérifie si le produit existe et appartient au vendeur connecté
+    const product = await strapi.entityService.findOne('api::product.product', id, { populate: ['seller'] });
+    if (!product || product.seller.id !== user.id) {
+      return ctx.unauthorized('Vous n\'êtes pas autorisé à mettre à jour ce produit.');
+    }
+
+    // Met à jour le produit
+    const updatedProduct = await strapi.entityService.update('api::product.product', id, {
+      data,
+    });
+    ctx.send(updatedProduct);
+  },
+};
