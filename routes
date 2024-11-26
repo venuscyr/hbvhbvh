@@ -15,6 +15,22 @@ export default {
       config: {
         policies: ['plugin::users-permissions.isAuthenticated', 'plugin::users-permissions.isSeller']
       }
+    },
+    {
+      method: 'DELETE',
+      path: '/products/:id',
+      handler: 'product.delete',
+      config: {
+        policies: ['plugin::users-permissions.isAuthenticated', 'plugin::users-permissions.isSeller']
+      }
+    },
+    {
+      method: 'PUT',
+      path: '/products/:id',
+      handler: 'product.update',
+      config: {
+        policies: ['plugin::users-permissions.isAuthenticated', 'plugin::users-permissions.isSeller']
+      }
     }
   ]
 };
