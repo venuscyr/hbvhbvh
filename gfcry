@@ -1,0 +1,18 @@
+export default [
+  'strapi::errors',
+  {
+    name: 'strapi::cors',
+    config: {
+      enabled: true,
+      header: '*',
+      origin: [
+        'http://localhost:8080',   // URL par défaut de Vue
+        'http://localhost:3000',   // Autre port courant
+        'http://127.0.0.1:8080'    // Autre format localhost
+      ]
+    }
+  },
+  'strapi::poweredBy',
+  'strapi::logger',
+  // ... autres middlewares
+];
