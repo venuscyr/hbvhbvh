@@ -1,0 +1,20 @@
+export default {
+  routes: [
+    {
+      method: 'GET',
+      path: '/products/my-products',
+      handler: 'product.findMySellers',
+      config: {
+        policies: ['plugin::users-permissions.isAuthenticated', 'plugin::users-permissions.isSeller']
+      }
+    },
+    {
+      method: 'POST',
+      path: '/products',
+      handler: 'product.create',
+      config: {
+        policies: ['plugin::users-permissions.isAuthenticated', 'plugin::users-permissions.isSeller']
+      }
+    }
+  ]
+};
